@@ -33,6 +33,17 @@ O Pokémon aparece num palco 3D: dá para **girar com o dedo** e **tocar** para 
 
 ---
 
+## 📲 Instalar no celular
+
+Dá para ter a Pokédex como um app, com ícone na tela inicial e em tela cheia. Abra [pokedex-legends.vercel.app](https://pokedex-legends.vercel.app) e:
+
+- **Android (Chrome):** toque em **Instalar app** quando o aviso aparecer (ou em ⋮ → *Instalar app*).
+- **iPhone/iPad (Safari):** toque em **Compartilhar** (o quadradinho com a seta) → **Adicionar à Tela de Início**. No iPhone precisa ser pelo Safari.
+
+Depois de instalada, ela **abre mesmo sem internet**: os Pokémon que você já abriu ficam guardados no aparelho. Um Pokémon que você nunca abriu precisa de internet na primeira vez.
+
+---
+
 ## Um aviso sincero
 
 - Os dados vêm da [PokéAPI](https://pokeapi.co), que cobre **todos os jogos da série**. Então a Pokédex é geral e **não é específica do Legends**: um golpe ou habilidade pode ser diferente no jogo.

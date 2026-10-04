@@ -4,6 +4,9 @@ Este arquivo registra o histórico de entregas de produto deste projeto.
 
 ## Entregas
 
+### Instalar como app
+Agora a Pokédex pode ser instalada na tela inicial do Android e do iPhone, com ícone próprio e em tela cheia. Ela também abre sem internet: os Pokémon que você já viu ficam guardados no aparelho, e aparece um aviso amigável quando uma tela ainda não foi guardada. Um convite para instalar aparece na primeira visita.
+
 ### Golpes animados
 Agora, ao tocar em um golpe, o Pokémon executa o ataque no palco 3D com movimento realista: golpes físicos são uma investida com impacto e tremor, golpes especiais carregam e disparam um projétil, e golpes de status criam uma aura. Cada tipo tem seu próprio efeito (fogo sobe, água cai, pedra quica, raio estala e assim por diante). Em telas em pé, a tela rola sozinha até o Pokémon, e há um botão para repetir a animação.
 

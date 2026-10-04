@@ -1,0 +1,29 @@
+{
+  "$schema": "forge-sdd/metrics/1.0",
+  "feature": "sdd/features/feat-e5c8-pwa.md",
+  "phase": "e5c8",
+  "agent_path": [
+    "orquestrador",
+    "builder"
+  ],
+  "tokens_input": 140000,
+  "tokens_output": 60000,
+  "turns": 30,
+  "duration_seconds": 5400,
+  "criterio_atendido": true,
+  "model": "claude-sonnet-5-5",
+  "rework_lines": 0,
+  "context7_calls": 0,
+  "git_calls": 0,
+  "files_touched": [
+    "public/sw.js",
+    "app/manifest.ts",
+    "app/layout.tsx",
+    "app/offline/page.tsx",
+    "src/presentation/pwa/InstallPrompt.tsx",
+    "src/presentation/pwa/ServiceWorkerRegister.tsx",
+    "scripts/generate-icons.mjs"
+  ],
+  "outcome": "approved",
+  "sdd_version": "2.4.0"
+}
