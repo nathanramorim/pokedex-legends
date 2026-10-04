@@ -1,0 +1,26 @@
+{
+  "$schema": "forge-sdd/metrics/1.0",
+  "feature": "sdd/features/feat-7b3d-detalhe-golpe.md",
+  "phase": "7b3d",
+  "agent_path": [
+    "orquestrador",
+    "builder"
+  ],
+  "tokens_input": 60000,
+  "tokens_output": 25000,
+  "turns": 14,
+  "duration_seconds": 1800,
+  "criterio_atendido": true,
+  "model": "claude-sonnet-5-5",
+  "rework_lines": 0,
+  "context7_calls": 0,
+  "git_calls": 0,
+  "files_touched": [
+    "src/domain/entities/pokemon.ts",
+    "src/infrastructure/pokeapi/mappers.ts",
+    "src/presentation/components/features/detail/MovesTab.tsx",
+    "src/presentation/format.ts"
+  ],
+  "outcome": "approved",
+  "sdd_version": "2.4.0"
+}
