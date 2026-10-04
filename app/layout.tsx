@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   icons: { icon: '/icon.svg', apple: '/icons/apple-touch-icon.png' },
   appleWebApp: { capable: true, title: 'Pokédex', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },
+  // O Next emite só `mobile-web-app-capable`; o Safari mais antigo do iOS ainda procura a versão com prefixo.
+  other: { 'apple-mobile-web-app-capable': 'yes' },
 };
 
 export const viewport: Viewport = {

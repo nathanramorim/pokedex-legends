@@ -52,6 +52,7 @@ describe('metadata do iOS e tema (P3)', () => {
     expect(metadata.icons).toMatchObject({ apple: '/icons/apple-touch-icon.png' });
     expect(metadata.appleWebApp).toMatchObject({ capable: true, title: 'Pokédex' });
     expect(metadata.manifest).toBe('/manifest.webmanifest');
+    expect(metadata.other).toMatchObject({ 'apple-mobile-web-app-capable': 'yes' });
     expect(viewport.themeColor).toBe('#dc0a2d');
   });
 
