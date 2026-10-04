@@ -1,0 +1,8 @@
+.screen {
+  background: var(--dex-screen);
+  border: 4px solid var(--dex-ink);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 3px var(--dex-screen-dark);
+  padding: 12px;
+  min-width: 0;
+}

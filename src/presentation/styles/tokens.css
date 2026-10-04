@@ -1,0 +1,74 @@
+:root {
+  /* Carcaça e tela da Pokédex */
+  --dex-red: #dc0a2d;
+  --dex-red-dark: #9e0620;
+  --dex-red-light: #f0354f;
+  --dex-lens-blue: #28aafd;
+  --dex-lens-dark: #0b6bb8;
+  --dex-screen: #98cb98;
+  --dex-screen-dark: #6fa56f;
+  --dex-ink: #222224;
+  --dex-white: #ffffff;
+  --dex-panel: #f4f4f4;
+  --dex-yellow: #ffcb05;
+  --dex-green: #2dbe60;
+
+  /* Tipos */
+  --type-normal: #a8a878;
+  --type-fire: #f08030;
+  --type-water: #6890f0;
+  --type-electric: #f8d030;
+  --type-grass: #78c850;
+  --type-ice: #98d8d8;
+  --type-fighting: #c03028;
+  --type-poison: #a040a0;
+  --type-ground: #e0c068;
+  --type-flying: #a890f0;
+  --type-psychic: #f85888;
+  --type-bug: #a8b820;
+  --type-rock: #b8a038;
+  --type-ghost: #705898;
+  --type-dragon: #7038f8;
+  --type-dark: #705848;
+  --type-steel: #b8b8d0;
+  --type-fairy: #ee99ac;
+
+  /* Cor do texto/ícone sobre cada tipo (contraste mínimo 4,5:1) */
+  --type-on-normal: var(--dex-ink);
+  --type-on-fire: var(--dex-ink);
+  --type-on-water: var(--dex-ink);
+  --type-on-electric: var(--dex-ink);
+  --type-on-grass: var(--dex-ink);
+  --type-on-ice: var(--dex-ink);
+  --type-on-fighting: var(--dex-white);
+  --type-on-poison: var(--dex-white);
+  --type-on-ground: var(--dex-ink);
+  --type-on-flying: var(--dex-ink);
+  --type-on-psychic: var(--dex-ink);
+  --type-on-bug: var(--dex-ink);
+  --type-on-rock: var(--dex-ink);
+  --type-on-ghost: var(--dex-white);
+  --type-on-dragon: var(--dex-white);
+  --type-on-dark: var(--dex-white);
+  --type-on-steel: var(--dex-ink);
+  --type-on-fairy: var(--dex-ink);
+
+  --radius: 12px;
+  --space: 8px;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--dex-red-dark);
+  color: var(--dex-ink);
+  font-family: var(--font-body);
+}

@@ -1,0 +1,12 @@
+.tree, .branches { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.item { display: grid; gap: 6px; }
+.branches { padding-left: 14px; border-left: 3px dashed var(--dex-red); margin-left: 24px; }
+.branch { display: grid; gap: 4px; }
+.condition { font-size: 0.8rem; font-weight: 700; color: var(--dex-red-dark); }
+.node {
+  display: flex; align-items: center; gap: 10px; padding: 6px 10px; text-decoration: none; color: var(--dex-ink);
+  border: 2px solid var(--dex-ink); border-radius: var(--radius); background: var(--dex-panel); min-height: 44px;
+}
+.node small { display: block; opacity: 0.6; font-variant-numeric: tabular-nums; }
+.current { background: var(--dex-yellow); }
+.node:focus-visible { outline: 3px solid var(--dex-lens-blue); outline-offset: 2px; }

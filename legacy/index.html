@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokédex Legends Z-A — HUD & Banco de Dados PokéAPI v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700&family=Outfit:wght@400;500;600;700;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Three.js Local Bundle (Runs 100% Offline) -->
+  <script src="assets/three.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Toolbar / Navigation Controls -->
+  <header class="app-toolbar">
+    <div class="toolbar-brand" id="brandNav">
+      <span class="pokeball-mini"></span>
+      <span class="brand-title">POKÉDEX HUD <span class="badge-za">LEGENDS Z-A</span></span>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <div class="nav-tabs-group">
+      <button class="nav-tab-btn active" id="btnNavList">
+        <span class="icon">🔍</span> Buscar & Lista
+      </button>
+      <button class="nav-tab-btn" id="btnNavDetail">
+        <span class="icon">🎴</span> Card Detalhado
+      </button>
+    </div>
+
+    <!-- Detail View Mode Controls (Active in Card View) -->
+    <div class="view-switcher is-hidden" id="detailViewSwitcher">
+      <button class="btn-toggle active" id="btnModeCard" data-mode="card">
+        <span class="btn-icon">🔥</span> Card
+      </button>
+      <button class="btn-toggle" id="btnModeTemplate" data-mode="template">
+        <span class="btn-icon">📐</span> Wireframe
+      </button>
+      <button class="btn-toggle" id="btnModeParticles" data-mode="particles">
+        <span class="icon">✨</span> 3D: <strong id="lblParticles">ON</strong>
+      </button>
+      <button class="btn-toggle" id="btnToggleEditor">
+        <span class="btn-icon">✏️</span> Customizar
+      </button>
+    </div>
+
+    <div class="toolbar-actions">
+      <button class="btn-tool" id="btnOpenIconGallery" title="Ver Cartela de Ícones">
+        <span class="icon">🎨</span> Ícones
+      </button>
+      <button class="btn-tool" id="btnToggle3D" title="Efeito 3D Holográfico">
+        <span class="icon">🔮</span> Tilt: <strong id="lblTilt">ON</strong>
+      </button>
+      <button class="btn-tool" id="btnToggleAudio" title="Efeitos Sonoros Sci-Fi">
+        <span class="icon">🔊</span> Som: <strong id="lblAudio">ON</strong>
+      </button>
+      <button class="btn-tool primary" id="btnPrintCard" title="Imprimir ou Salvar PDF">
+        <span class="icon">🖨️</span> PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-stage">
+
+    <!-- ================= SCREEN 1: POKÉDEX SEARCH & LISTING ================= -->
+    <section class="view-pokedex" id="viewPokedex">
+      
+      <!-- Hero Banner & Search Interface -->
+      <div class="pokedex-hero">
+        <div class="hero-inner">
+          <div class="hero-badge-tag">
+            <span class="pulse-dot"></span> BASE DE DADOS INTEGRADA COM POKÉAPI V2
+          </div>
+          <h1 class="hero-heading">Explore a Pokédex</h1>
+          <p class="hero-subtext">Pesquise por qualquer Pokémon, filtre por tipo ou geração e clique para abrir a visualização detalhada em formato HUD Card futurista.</p>
+          
+          <!-- Cyberpunk HUD Search Bar -->
+          <div class="search-box-card">
+            <div class="search-main-row">
+              <div class="search-input-field">
+                <span class="search-icon-symbol">🔍</span>
+                <input type="text" id="pokeSearchInput" class="search-input" placeholder="Buscar por nome ou número (ex: Charizard, 6, Lucario, 25, Gengar)..." autocomplete="off">
+                <button id="btnClearSearch" class="btn-clear-input is-hidden">&times;</button>
+              </div>
+
+              <div class="search-dropdown-group">
+                <select id="selGenFilter" class="hud-select" title="Filtrar por Região/Geração">
+                  <option value="all">Todas as Gerações (1 - 9)</option>
+                  <option value="gen1">Gen 1 — Kanto (1 - 151)</option>
+                  <option value="gen2">Gen 2 — Johto (152 - 251)</option>
+                  <option value="gen3">Gen 3 — Hoenn (252 - 386)</option>
+                  <option value="gen4">Gen 4 — Sinnoh (387 - 493)</option>
+                  <option value="gen5">Gen 5 — Unova (494 - 649)</option>
+                  <option value="gen6">Gen 6 — Kalos / Legends Z-A (650 - 721)</option>
+                  <option value="gen7">Gen 7 — Alola (722 - 809)</option>
+                  <option value="gen8">Gen 8 — Galar (810 - 898)</option>
+                  <option value="gen9">Gen 9 — Paldea (899 - 1025)</option>
+                </select>
+
+                <select id="selSortOrder" class="hud-select" title="Ordenar lista">
+                  <option value="id-asc">Número (Menor → Maior)</option>
+                  <option value="id-desc">Número (Maior → Menor)</option>
+                  <option value="name-asc">Nome (A → Z)</option>
+                  <option value="bst-desc">Total de Atributos (Maior)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Type Filter Chips (Using our extracted type badges!) -->
+            <div class="type-chips-wrapper">
+              <span class="type-chips-label">Filtrar Tipo:</span>
+              <div class="type-chips-scroll" id="typeChipsContainer">
+                <button class="type-chip active" data-type="all">
+                  <span>Todos</span>
+                </button>
+                <button class="type-chip" data-type="fire">
+                  <span class="chip-icon icon-fire"></span><span>Fogo</span>
+                </button>
+                <button class="type-chip" data-type="water">
+                  <span class="chip-icon icon-water"></span><span>Água</span>
+                </button>
+                <button class="type-chip" data-type="grass">
+                  <span class="chip-icon icon-grass"></span><span>Planta</span>
+                </button>
+                <button class="type-chip" data-type="electric">
+                  <span class="chip-icon icon-electric"></span><span>Elétrico</span>
+                </button>
+                <button class="type-chip" data-type="flying">
+                  <span class="chip-icon icon-flying"></span><span>Voador</span>
+                </button>
+                <button class="type-chip" data-type="dragon">
+                  <span class="chip-icon icon-dragon"></span><span>Dragão</span>
+                </button>
+                <button class="type-chip" data-type="ice">
+                  <span class="chip-icon icon-ice"></span><span>Gelo</span>
+                </button>
+                <button class="type-chip" data-type="fighting">
+                  <span class="chip-icon icon-fighting"></span><span>Lutador</span>
+                </button>
+                <button class="type-chip" data-type="poison">
+                  <span class="chip-icon icon-poison"></span><span>Veneno</span>
+                </button>
+                <button class="type-chip" data-type="ground">
+                  <span class="chip-icon icon-ground"></span><span>Terra</span>
+                </button>
+                <button class="type-chip" data-type="rock">
+                  <span class="chip-icon icon-rock"></span><span>Rocha</span>
+                </button>
+                <button class="type-chip" data-type="psychic">
+                  <span class="chip-icon icon-psychic"></span><span>Psíquico</span>
+                </button>
+                <button class="type-chip" data-type="ghost">
+                  <span class="chip-icon icon-ghost"></span><span>Fantasma</span>
+                </button>
+                <button class="type-chip" data-type="bug">
+                  <span class="chip-icon icon-bug"></span><span>Inseto</span>
+                </button>
+                <button class="type-chip" data-type="steel">
+                  <span class="chip-icon icon-steel"></span><span>Aço</span>
+                </button>
+                <button class="type-chip" data-type="dark">
+                  <span class="chip-icon icon-dark"></span><span>Noturno</span>
+                </button>
+                <button class="type-chip" data-type="fairy">
+                  <span class="chip-icon icon-fairy"></span><span>Fada</span>
+                </button>
+                <button class="type-chip" data-type="normal">
+                  <span class="chip-icon icon-normal"></span><span>Normal</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid Results Area -->
+      <div class="pokedex-grid-container">
+        <div class="grid-status-header">
+          <div class="status-left">
+            <span class="count-badge" id="resultsCount">Carregando Pokédex...</span>
+          </div>
+          <div class="status-right">
+            <span class="status-indicator-dot"></span>
+            <span class="api-label" id="apiStatusLabel">PokéAPI v2 Online</span>
+          </div>
+        </div>
+
+        <!-- The Responsive Cards Grid -->
+        <div class="pokemon-grid" id="pokemonGrid">
+          <!-- Dynamically populated cards -->
+        </div>
+
+        <!-- Load More / Pagination -->
+        <div class="load-more-container" id="loadMoreWrap">
+          <button class="btn-load-more" id="btnLoadMore">
+            <span class="icon">⚡</span> Carregar Mais Pokémon
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SCREEN 2: DETAILED HUD CARD VIEW ================= -->
+    <section class="view-detail is-hidden" id="viewDetail">
+      
+      <!-- Top Sub-Bar for Card Navigation -->
+      <div class="detail-nav-bar">
+        <button class="btn-back-list" id="btnBackToList">
+          <span class="icon">←</span> Voltar para a Pokédex
+        </button>
+
+        <div class="pokemon-stepper">
+          <button class="btn-step" id="btnPrevPoke" title="Pokémon Anterior">
+            <span>◀ Anterior</span>
+          </button>
+          <span class="stepper-current" id="lblCurrentPoke">#0006 Charizard</span>
+          <button class="btn-step" id="btnNextPoke" title="Próximo Pokémon">
+            <span>Próximo ▶</span>
+          </button>
+        </div>
+
+        <button class="btn-tool" id="btnResetStats" title="Reanimar Status">
+          <span class="icon">⚡</span> Reanimar
+        </button>
+      </div>
+
+      <!-- Scalable Card Outer Container for Responsive Fit -->
+      <div class="card-scale-container" id="cardScaleContainer">
+        <div class="card-viewport" id="cardViewport">
+          
+          <!-- Hologram Card Outer Shell -->
+          <div class="card-tilt-wrapper" id="tiltWrapper">
+          
+          <!-- The Main 682x1024 Card: 100% PURE HTML & CSS -->
+          <article class="pokemon-card" id="pokemonCard">
+            
+            <!-- Holographic Shimmer Foil Overlay -->
+            <div class="holo-foil" id="holoFoil"></div>
+
+            <!-- Three.js Live 3D Particle Canvas -->
+            <canvas id="threeCanvas" class="three-canvas"></canvas>
+
+            <!-- Character Art Stage (Top Half) -->
+            <div class="character-art-stage" id="artStage">
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/6.png" alt="Pokémon Illustration" class="charizard-art-img" id="charizardArt">
+              <div class="art-gradient-fade"></div>
+            </div>
+
+            <!-- Pure CSS / SVG HUD Outer Frame -->
+            <div class="hud-outer-frame">
+              <svg class="hud-frame-svg" viewBox="0 0 682 1024" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="goldGradient" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffd572"/>
+                    <stop offset="30%" stop-color="#e6a23c"/>
+                    <stop offset="70%" stop-color="#ffbe53"/>
+                    <stop offset="100%" stop-color="#b87820"/>
+                  </linearGradient>
+                  <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                
+                <path class="frame-outer-path" d="
+                  M 38 18 
+                  L 190 18 
+                  L 210 32 
+                  L 520 32 
+                  L 540 18 
+                  L 644 18 
+                  A 20 20 0 0 1 664 38 
+                  L 664 986 
+                  A 20 20 0 0 1 644 1006 
+                  L 38 1006 
+                  A 20 20 0 0 1 18 986 
+                  L 18 38 
+                  A 20 20 0 0 1 38 18 Z
+                " fill="none" stroke="url(#goldGradient)" stroke-width="2.5" filter="url(#goldGlow)"/>
+
+                <path class="frame-inner-path" d="
+                  M 40 24 
+                  L 188 24 
+                  L 208 38 
+                  L 522 38 
+                  L 542 24 
+                  L 640 24 
+                  A 14 14 0 0 1 654 38 
+                  L 654 984 
+                  A 14 14 0 0 1 640 998 
+                  L 40 998 
+                  A 14 14 0 0 1 26 984 
+                  L 26 38 
+                  A 14 14 0 0 1 40 24 Z
+                " fill="none" stroke="rgba(255, 213, 114, 0.45)" stroke-width="1.2"/>
+              </svg>
+            </div>
+
+            <!-- ================= HEADER SECTION ================= -->
+            <header class="header-section">
+              <!-- Pokéball Badge -->
+              <div class="pokeball-badge">
+                <svg viewBox="0 0 100 100" class="pokeball-svg">
+                  <defs>
+                    <radialGradient id="pokeGlow" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#ff7b39" stop-opacity="0.9"/>
+                      <stop offset="100%" stop-color="#cc2200" stop-opacity="0"/>
+                    </radialGradient>
+                    <linearGradient id="pokeTop" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#ff6040"/>
+                      <stop offset="100%" stop-color="#cc1f0e"/>
+                    </linearGradient>
+                    <linearGradient id="pokeBot" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#ff6040"/>
+                      <stop offset="100%" stop-color="#cc1f0e"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="50" cy="50" r="48" fill="url(#pokeGlow)"/>
+                  <circle cx="50" cy="50" r="38" fill="url(#pokeTop)" stroke="#ffffff" stroke-width="3"/>
+                  <path d="M 12 50 A 38 38 0 0 0 88 50 Z" fill="url(#pokeBot)"/>
+                  <rect x="12" y="47" width="76" height="6" fill="#1b120c"/>
+                  <circle cx="50" cy="50" r="13" fill="#ffffff" stroke="#1b120c" stroke-width="5"/>
+                  <circle cx="50" cy="50" r="6" fill="#ffffff" stroke="#bbb" stroke-width="1.5"/>
+                </svg>
+              </div>
+
+              <!-- Identity Box -->
+              <div class="identity-box">
+                <span class="poke-id" id="txtPokeId">Nº 0006</span>
+                <h1 class="poke-name" id="txtPokeName">Charizard</h1>
+                <div class="poke-category-bar">
+                  <span class="poke-category" id="txtPokeCategory">Pokémon Chamas</span>
+                </div>
+              </div>
+
+              <!-- Type Badges Row (Pure CSS ::before icons) -->
+              <div class="type-badges-row">
+                <div class="type-badge badge-fire" id="badgeType1">
+                  <span class="type-text" id="txtType1">FOGO</span>
+                </div>
+                <div class="type-badge badge-flying" id="badgeType2">
+                  <span class="type-text" id="txtType2">VOADOR</span>
+                </div>
+              </div>
+            </header>
+
+            <!-- ================= FUNÇÃO NO TIME (Top-Right) ================= -->
+            <section class="panel panel-role" id="panelRole">
+              <h3 class="panel-heading">FUNÇÃO NO TIME</h3>
+              <div class="panel-divider"></div>
+              <ul class="role-list">
+                <li class="role-item">
+                  <span class="role-icon role-special" id="iconRole1"></span>
+                  <span class="role-text" id="txtRole1">Atacante Especial</span>
+                </li>
+                <li class="role-item">
+                  <span class="role-icon role-speed" id="iconRole2"></span>
+                  <span class="role-text" id="txtRole2">Alta Velocidade</span>
+                </li>
+                <li class="role-item">
+                  <span class="role-icon role-coverage" id="iconRole3"></span>
+                  <span class="role-text" id="txtRole3">Respostas a Planta, Inseto, Gelo e Aço</span>
+                </li>
+              </ul>
+            </section>
+
+
+            <!-- ================= GOLPES RECOMENDADOS ================= -->
+            <section class="panel-group panel-moves" id="panelMoves">
+              <div class="moves-header-tab">GOLPES RECOMENDADOS</div>
+              
+              <div class="moves-container" id="movesContainer">
+                <!-- Move 1 -->
+                <div class="move-card" id="moveCard1">
+                  <div class="move-badge-col">
+                    <span class="move-badge-icon icon-fire" id="moveIcon1"></span>
+                  </div>
+                  <div class="move-content-col">
+                    <div class="move-header-line">
+                      <div class="move-title-group">
+                        <span class="move-title" id="moveName1">Flamethrower</span>
+                        <span class="move-type-pill pill-fire" id="movePill1">
+                          <span id="moveTypeText1">FOGO</span>
+                        </span>
+                      </div>
+                      <div class="move-stats-group">
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Poder</span>
+                          <strong class="stat-num" id="movePower1">90</strong>
+                        </div>
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Precisão</span>
+                          <strong class="stat-num" id="moveAcc1">100%</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="move-description" id="moveDesc1">Causa dano consistente com boa precisão.</p>
+                  </div>
+                </div>
+
+                <!-- Move 2 -->
+                <div class="move-card" id="moveCard2">
+                  <div class="move-badge-col">
+                    <span class="move-badge-icon icon-flying" id="moveIcon2"></span>
+                  </div>
+                  <div class="move-content-col">
+                    <div class="move-header-line">
+                      <div class="move-title-group">
+                        <span class="move-title" id="moveName2">Air Slash</span>
+                        <span class="move-type-pill pill-flying" id="movePill2">
+                          <span id="moveTypeText2">VOADOR</span>
+                        </span>
+                      </div>
+                      <div class="move-stats-group">
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Poder</span>
+                          <strong class="stat-num" id="movePower2">75</strong>
+                        </div>
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Precisão</span>
+                          <strong class="stat-num" id="moveAcc2">95%</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="move-description" id="moveDesc2">Boa chance de fazer o alvo recuar.</p>
+                  </div>
+                </div>
+
+                <!-- Move 3 -->
+                <div class="move-card" id="moveCard3">
+                  <div class="move-badge-col">
+                    <span class="move-badge-icon icon-grass" id="moveIcon3"></span>
+                  </div>
+                  <div class="move-content-col">
+                    <div class="move-header-line">
+                      <div class="move-title-group">
+                        <span class="move-title" id="moveName3">Solar Beam</span>
+                        <span class="move-type-pill pill-grass" id="movePill3">
+                          <span id="moveTypeText3">PLANTA</span>
+                        </span>
+                      </div>
+                      <div class="move-stats-group">
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Poder</span>
+                          <strong class="stat-num" id="movePower3">120</strong>
+                        </div>
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Precisão</span>
+                          <strong class="stat-num" id="moveAcc3">100%</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="move-description" id="moveDesc3">Causa grande dano, ideal contra tipos Água, Terra e Rocha.</p>
+                  </div>
+                </div>
+
+                <!-- Move 4 -->
+                <div class="move-card" id="moveCard4">
+                  <div class="move-badge-col">
+                    <span class="move-badge-icon icon-dragon" id="moveIcon4"></span>
+                  </div>
+                  <div class="move-content-col">
+                    <div class="move-header-line">
+                      <div class="move-title-group">
+                        <span class="move-title" id="moveName4">Dragon Pulse</span>
+                        <span class="move-type-pill pill-dragon" id="movePill4">
+                          <span id="moveTypeText4">DRAGÃO</span>
+                        </span>
+                      </div>
+                      <div class="move-stats-group">
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Poder</span>
+                          <strong class="stat-num" id="movePower4">85</strong>
+                        </div>
+                        <div class="move-stat-item">
+                          <span class="stat-lbl">Precisão</span>
+                          <strong class="stat-num" id="moveAcc4">100%</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="move-description" id="moveDesc4">Boa cobertura contra Dragões e outros alvos.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= FORTE CONTRA (Green Neon) ================= -->
+            <section class="panel panel-effective-strong" id="panelStrong">
+              <div class="panel-badge-heading">
+                <span class="heading-badge-icon icon-thumbs-up"></span>
+                <h3 class="heading-text">FORTE CONTRA</h3>
+              </div>
+              <div class="panel-divider-green"></div>
+
+              <div class="type-grid-2col" id="strongTypesGrid">
+                <!-- Dynamically populated or default types -->
+                <div class="type-entry">
+                  <span class="type-circle-icon icon-grass"></span>
+                  <span class="type-label">Planta</span>
+                </div>
+                <div class="type-entry">
+                  <span class="type-circle-icon icon-steel"></span>
+                  <span class="type-label">Aço</span>
+                </div>
+                <div class="type-entry">
+                  <span class="type-circle-icon icon-bug"></span>
+                  <span class="type-label">Inseto</span>
+                </div>
+                <div class="type-entry">
+                  <span class="type-circle-icon icon-ground"></span>
+                  <span class="type-label">Terra</span>
+                </div>
+                <div class="type-entry">
+                  <span class="type-circle-icon icon-ice"></span>
+                  <span class="type-label">Gelo</span>
+                </div>
+                <div class="type-entry">
+                  <span class="type-circle-icon icon-fairy"></span>
+                  <span class="type-label">Fada</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= VULNERÁVEL A (Red Neon) ================= -->
+            <section class="panel panel-effective-weak" id="panelWeak">
+              <div class="panel-badge-heading">
+                <span class="heading-badge-icon icon-warning-alert"></span>
+                <h3 class="heading-text">VULNERÁVEL A</h3>
+              </div>
+              <div class="panel-divider-red"></div>
+
+              <div class="vuln-list" id="weakTypesList">
+                <div class="vuln-row">
+                  <div class="vuln-type">
+                    <span class="type-circle-icon icon-water"></span>
+                    <span class="type-label">Água</span>
+                  </div>
+                  <span class="vuln-mult-badge mult-2x"></span>
+                </div>
+
+                <div class="vuln-row">
+                  <div class="vuln-type">
+                    <span class="type-circle-icon icon-electric"></span>
+                    <span class="type-label">Elétrico</span>
+                  </div>
+                  <span class="vuln-mult-badge mult-2x"></span>
+                </div>
+
+                <div class="vuln-row">
+                  <div class="vuln-type">
+                    <span class="type-circle-icon icon-rock"></span>
+                    <span class="type-label">Rocha</span>
+                  </div>
+                  <span class="vuln-mult-badge mult-2x"></span>
+                </div>
+
+                <div class="vuln-row">
+                  <div class="vuln-type">
+                    <span class="type-circle-icon icon-dragon"></span>
+                    <span class="type-label">Dragão</span>
+                  </div>
+                  <span class="vuln-mult-badge mult-2x"></span>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= ITEM RECOMENDADO ================= -->
+            <section class="panel panel-item" id="panelItem">
+              <h3 class="panel-heading">ITEM RECOMENDADO</h3>
+              <div class="panel-divider"></div>
+              <div class="item-body">
+                <div class="item-square-frame">
+                  <span class="item-img icon-item-mega" id="imgItem"></span>
+                </div>
+                <div class="item-info">
+                  <h4 class="item-name" id="txtItemName">Charizardite Y</h4>
+                  <p class="item-desc" id="txtItemDesc">Permite a Mega Evolução e aumenta muito o Ataque Especial e o poder dos golpes do tipo Fogo.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= HABILIDADE ================= -->
+            <section class="panel panel-ability" id="panelAbility">
+              <h3 class="panel-heading">HABILIDADE</h3>
+              <div class="panel-divider"></div>
+              <div class="ability-body">
+                <div class="ability-badge-wrap">
+                  <span class="ability-icon-img icon-weather-sun" id="imgAbility"></span>
+                </div>
+                <div class="ability-info">
+                  <h4 class="ability-name" id="txtAbilityName">Drought (Clima Seco)</h4>
+                  <p class="ability-desc" id="txtAbilityDesc">Ao entrar em campo, ativa o clima de sol, aumentando o poder dos golpes do tipo Fogo e reduzindo a força de golpes do tipo Água.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= NATUREZA SUGERIDA ================= -->
+            <section class="panel panel-nature" id="panelNature">
+              <h3 class="panel-heading">NATUREZA SUGERIDA</h3>
+              <div class="panel-divider"></div>
+              <div class="nature-body">
+                <div class="nature-badge-wrap">
+                  <span class="nature-icon-img icon-arrow-up" id="imgNature"></span>
+                </div>
+                <div class="nature-info">
+                  <h4 class="nature-name" id="txtNatureName">Modesta (↑ At. Esp. / ↓ Ataque)</h4>
+                  <p class="nature-desc" id="txtNatureDesc">Maximiza o dano especial, mantendo boa consistência.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- ================= MEGA EVOLUÇÃO ================= -->
+            <section class="panel panel-mega" id="panelMega">
+              <div class="mega-body">
+                <div class="mega-text-col">
+                  <h3 class="panel-heading">MEGA EVOLUÇÃO</h3>
+                  <h4 class="mega-name" id="txtMegaName">Mega Charizard Y</h4>
+                  
+                  <div class="mega-types-row">
+                    <span class="type-pill pill-fire" id="megaPill1">
+                      <span id="txtMegaType1">FOGO</span>
+                    </span>
+                    <span class="type-pill pill-flying" id="megaPill2">
+                      <span id="txtMegaType2">VOADOR</span>
+                    </span>
+                  </div>
+
+                  <p class="mega-desc" id="txtMegaDesc">Aumenta muito o Ataque Especial e o poder dos golpes do tipo Fogo, tornando o Charizard um dos Pokémon mais fortes e versáteis do jogo.</p>
+                </div>
+                <div class="mega-badge-col">
+                  <div class="mega-crest-box">
+                    <span class="mega-crest-icon icon-dna-mega"></span>
+                    <span class="mega-crest-label">MEGA STATUS</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <!-- Live Interactive Editor Sidebar Drawer -->
+    <aside class="editor-drawer" id="editorDrawer">
+      <div class="editor-header">
+        <h3>Painel de Customização</h3>
+        <button class="btn-close-drawer" id="btnCloseEditor">&times;</button>
+      </div>
+
+      <div class="editor-content">
+        <!-- Preset Selector -->
+        <div class="form-group">
+          <label>Carregar Pokémon da PokéAPI:</label>
+          <select id="selPreset" class="form-select">
+            <option value="6" selected>Charizard (#0006)</option>
+            <option value="25">Pikachu (#0025)</option>
+            <option value="448">Lucario (#0448)</option>
+            <option value="94">Gengar (#0094)</option>
+            <option value="150">Mewtwo (#0150)</option>
+            <option value="658">Greninja (#0658)</option>
+            <option value="384">Rayquaza (#0384)</option>
+            <option value="197">Umbreon (#0197)</option>
+          </select>
+        </div>
+
+        <hr class="editor-hr">
+
+        <!-- Basic Info -->
+        <h4 class="section-title">Identificação</h4>
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label>Número:</label>
+            <input type="text" id="inpPokeId" value="Nº 0006" class="form-input">
+          </div>
+          <div class="form-group col-half">
+            <label>Nome:</label>
+            <input type="text" id="inpPokeName" value="Charizard" class="form-input">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Categoria:</label>
+          <input type="text" id="inpPokeCategory" value="Pokémon Chamas" class="form-input">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-half">
+            <label>Tipo 1:</label>
+            <select id="selType1" class="form-select">
+              <option value="fire" selected>FOGO</option>
+              <option value="water">ÁGUA</option>
+              <option value="grass">PLANTA</option>
+              <option value="electric">ELÉTRICO</option>
+              <option value="flying">VOADOR</option>
+              <option value="dragon">DRAGÃO</option>
+              <option value="fighting">LUTADOR</option>
+              <option value="psychic">PSÍQUICO</option>
+              <option value="ghost">FANTASMA</option>
+              <option value="steel">AÇO</option>
+              <option value="rock">ROCHA</option>
+              <option value="ground">TERRA</option>
+              <option value="ice">GELO</option>
+              <option value="dark">NOTURNO</option>
+              <option value="fairy">FADA</option>
+              <option value="poison">VENENOSO</option>
+              <option value="bug">INSETO</option>
+              <option value="normal">NORMAL</option>
+            </select>
+          </div>
+          <div class="form-group col-half">
+            <label>Tipo 2:</label>
+            <select id="selType2" class="form-select">
+              <option value="flying" selected>VOADOR</option>
+              <option value="fire">FOGO</option>
+              <option value="water">ÁGUA</option>
+              <option value="grass">PLANTA</option>
+              <option value="electric">ELÉTRICO</option>
+              <option value="dragon">DRAGÃO</option>
+              <option value="fighting">LUTADOR</option>
+              <option value="steel">AÇO</option>
+              <option value="none">NENHUM</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="editor-hr">
+
+        <!-- Stats -->
+        <h4 class="section-title">Atributos (Stats)</h4>
+        <div class="form-group">
+          <div class="range-header"><span>PS:</span> <strong id="lblValHp">160</strong></div>
+          <input type="range" id="rngHp" min="50" max="250" value="160" class="form-range">
+        </div>
+        <div class="form-group">
+          <div class="range-header"><span>Ataque:</span> <strong id="lblValAtk">104</strong></div>
+          <input type="range" id="rngAtk" min="20" max="200" value="104" class="form-range">
+        </div>
+        <div class="form-group">
+          <div class="range-header"><span>Defesa:</span> <strong id="lblValDef">98</strong></div>
+          <input type="range" id="rngDef" min="20" max="200" value="98" class="form-range">
+        </div>
+        <div class="form-group">
+          <div class="range-header"><span>At. Esp.:</span> <strong id="lblValSpa">159</strong></div>
+          <input type="range" id="rngSpa" min="20" max="200" value="159" class="form-range">
+        </div>
+        <div class="form-group">
+          <div class="range-header"><span>Def. Esp.:</span> <strong id="lblValSpd">115</strong></div>
+          <input type="range" id="rngSpd" min="20" max="200" value="115" class="form-range">
+        </div>
+        <div class="form-group">
+          <div class="range-header"><span>Velocidade:</span> <strong id="lblValSpe">100</strong></div>
+          <input type="range" id="rngSpe" min="20" max="200" value="100" class="form-range">
+        </div>
+
+        <hr class="editor-hr">
+
+        <!-- Habilidade & Natureza -->
+        <h4 class="section-title">Habilidade & Natureza</h4>
+        <div class="form-group">
+          <label>Habilidade:</label>
+          <input type="text" id="inpHabName" value="Drought (Clima Seco)" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Descrição Habilidade:</label>
+          <textarea id="inpHabDesc" class="form-textarea" rows="2">Ao entrar em campo, ativa o clima de sol, aumentando o poder dos golpes do tipo Fogo e reduzindo a força de golpes do tipo Água.</textarea>
+        </div>
+        <div class="form-group">
+          <label>Natureza:</label>
+          <input type="text" id="inpNatName" value="Modesta (↑ At. Esp. / ↓ Ataque)" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Descrição Natureza:</label>
+          <input type="text" id="inpNatDesc" value="Maximiza o dano especial, mantendo boa consistência." class="form-input">
+        </div>
+
+        <hr class="editor-hr">
+
+        <!-- Mega Evolution -->
+        <h4 class="section-title">Mega Evolução</h4>
+        <div class="form-group">
+          <label>Nome Mega:</label>
+          <input type="text" id="inpMegaName" value="Mega Charizard Y" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Item Recomendado:</label>
+          <input type="text" id="inpItemName" value="Charizardite Y" class="form-input">
+        </div>
+
+        <button class="btn-tool primary full-width" id="btnResetDefault">Restaurar Valores Padrão</button>
+      </div>
+    </aside>
+
+    <!-- ================= MODAL: CARTELA DE ÍCONES ================= -->
+    <div class="modal-overlay" id="modalIconGallery">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-icon">🎨</span>
+            <div>
+              <h3>Cartela de Ícones & Sprites</h3>
+              <p>Mais de 100 ícones extraídos da cartela oficial com transparência PNG</p>
+            </div>
+          </div>
+          <button class="btn-close-modal" id="btnCloseGallery">&times;</button>
+        </div>
+
+        <div class="modal-tabs">
+          <button class="tab-btn active" data-cat="all">Todos</button>
+          <button class="tab-btn" data-cat="types">Tipos (18)</button>
+          <button class="tab-btn" data-cat="battle">Batalha & Stats</button>
+          <button class="tab-btn" data-cat="multipliers">Multiplicadores</button>
+          <button class="tab-btn" data-cat="pokeballs">Pokébolas</button>
+          <button class="tab-btn" data-cat="items">Itens</button>
+          <button class="tab-btn" data-cat="badges">Emblemas & Alertas</button>
+          <button class="tab-btn" data-cat="weather">Clima & Efeitos</button>
+          <button class="tab-btn" data-cat="fullsheet">Cartela Original</button>
+        </div>
+
+        <div class="modal-body" id="galleryGrid">
+          <!-- Populated dynamically by JavaScript -->
+        </div>
+
+        <div class="modal-footer">
+          <span class="footer-hint">💡 Dica: Clique em qualquer ícone para copiar o caminho ou inspecionar.</span>
+          <button class="btn-tool" id="btnCloseGalleryFooter">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
