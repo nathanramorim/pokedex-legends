@@ -21,3 +21,4 @@
 .facts div { display: grid; }
 .facts dt { font-size: 0.7rem; text-transform: uppercase; opacity: 0.6; }
 .facts dd { margin: 0; font-weight: 800; }
+.replay { justify-self: start; min-height: 44px; }

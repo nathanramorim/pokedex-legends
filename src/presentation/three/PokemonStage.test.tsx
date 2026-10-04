@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
+import { MoveStageProvider, useMoveStage } from './StageContext';
 import { PokemonStage } from './PokemonStage';
 
 const calls = vi.hoisted(() => ({
@@ -7,6 +8,7 @@ const calls = vi.hoisted(() => ({
   rendererDisposed: 0,
   contextLossForced: 0,
   rendered: 0,
+  created: { points: 0, pointsMaterial: 0, shader: 0 },
   failRenderer: false,
   bodyRotationY: 0,
 }));
@@ -16,15 +18,16 @@ vi.mock('three', () => {
     class {
       dispose() { calls.disposed.push(name); }
     };
-  class Vec { x = 0; y = 0; z = 0; set(x: number, y: number, z: number) { this.x = x; this.y = y; this.z = z; } }
+  class Vec { x = 0; y = 0; z = 0; set(x: number, y: number, z: number) { this.x = x; this.y = y; this.z = z; } setScalar(v: number) { this.x = this.y = this.z = v; } }
   class Mesh {
     rotation = { x: 0, y: 0, z: 0 };
     position = new Vec();
     scale = new Vec();
+    visible = true;
     constructor(public geometry: unknown, public material: unknown) {}
   }
-  class Points extends Mesh {}
-  class Scene { add() {} clear() {} }
+  class Points extends Mesh { frustumCulled = true; constructor(g: unknown, m: unknown) { super(g, m); calls.created.points++; } }
+  class Scene { add() {} remove() {} clear() {} }
   class WebGLRenderer {
     constructor() { if (calls.failRenderer) throw new Error('Error creating WebGL context.'); }
     setPixelRatio() {}
@@ -40,11 +43,15 @@ vi.mock('three', () => {
     async loadAsync() { return { colorSpace: '', dispose: () => calls.disposed.push('texture') }; }
   }
   class BufferAttribute {}
-  class BufferGeometry extends tracked('particleGeometry') { setAttribute() {} }
+  class BufferGeometry extends tracked('particleGeometry') { setAttribute() {} attributes = { position: { needsUpdate: false }, aSize: { needsUpdate: false }, aAlpha: { needsUpdate: false }, aRot: { needsUpdate: false }, aColor: { needsUpdate: false } }; }
   return {
     WebGLRenderer, Scene, PerspectiveCamera, Mesh, Points, TextureLoader, BufferAttribute, BufferGeometry,
     PlaneGeometry: tracked('plane'), CircleGeometry: tracked('circle'), TorusGeometry: tracked('torus'),
-    MeshBasicMaterial: tracked('material'), PointsMaterial: tracked('pointsMaterial'),
+    MeshBasicMaterial: class extends tracked('material') { color = { set() {}, copy() {}, clone() { return {}; }, setScalar() {} }; opacity = 0.55; },
+    PointsMaterial: class extends tracked('pointsMaterial') { opacity = 0; constructor() { super(); calls.created.pointsMaterial++; } },
+    ShaderMaterial: class extends tracked('shaderMaterial') { constructor() { super(); calls.created.shader++; } },
+    RingGeometry: tracked('ring'), Group: class {},
+    CanvasTexture: tracked('shapeTexture'), AdditiveBlending: 2, LinearFilter: 1006,
     SRGBColorSpace: 'srgb', DoubleSide: 2,
   };
 });
@@ -63,6 +70,9 @@ beforeEach(() => {
   calls.rendererDisposed = 0;
   calls.contextLossForced = 0;
   calls.rendered = 0;
+  calls.created.points = 0;
+  calls.created.pointsMaterial = 0;
+  calls.created.shader = 0;
   calls.failRenderer = false;
   mockMatchMedia(false);
 });
@@ -121,5 +131,79 @@ describe('PokemonStage (CA10)', () => {
     await waitFor(() => expect(document.querySelector('[data-status="ready"]')).toBeInTheDocument());
     expect(rafCalls).toBe(0);
     raf.mockRestore();
+  });
+});
+
+function PlayButton({ label = 'tocar', category = 'special' as const }) {
+  const stage = useMoveStage();
+  return <button onClick={() => stage.playMove('fire', category)}>{label}</button>;
+}
+
+const withBridge = (ui: React.ReactNode) => render(<MoveStageProvider>{ui}</MoveStageProvider>);
+const ready = () => waitFor(() => expect(document.querySelector('[data-status="ready"]')).toBeInTheDocument());
+const disposedCount = (name: string) => calls.disposed.filter((d) => d === name).length;
+
+describe('animação de golpe', () => {
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+    window.HTMLCanvasElement.prototype.getContext = (() => null) as never;
+  });
+
+  it('A1: tocar o golpe cria o efeito no palco (e tocar de novo cria outro)', async () => {
+    withBridge(<><PokemonStage {...props} /><PlayButton /></>);
+    await ready();
+    const base = calls.created.points; // partículas de fundo
+    fireEvent.click(screen.getByText('tocar'));
+    expect(calls.created.points).toBe(base + 1);
+    fireEvent.click(screen.getByText('tocar'));
+    expect(calls.created.points).toBe(base + 2);
+  });
+
+  it('A4: nova animação cancela e libera a anterior; desmontar libera tudo', async () => {
+    const { unmount } = withBridge(<><PokemonStage {...props} /><PlayButton /></>);
+    await ready();
+    fireEvent.click(screen.getByText('tocar'));
+    const before = disposedCount('shaderMaterial');
+    fireEvent.click(screen.getByText('tocar'));
+    expect(disposedCount('shaderMaterial')).toBe(before + 1);
+    unmount();
+    expect(calls.created.shader).toBe(2);
+    expect(disposedCount('shaderMaterial')).toBe(calls.created.shader);
+    expect(disposedCount('particleGeometry')).toBe(calls.created.points);
+  });
+
+  it('A5: com prefers-reduced-motion não há projétil nem partículas', async () => {
+    mockMatchMedia(true);
+    withBridge(<><PokemonStage {...props} /><PlayButton /></>);
+    await ready();
+    const base = calls.created.points;
+    fireEvent.click(screen.getByText('tocar'));
+    expect(calls.created.points).toBe(base);
+  });
+
+  it('A6: sem WebGL, tocar o golpe não gera erro', async () => {
+    calls.failRenderer = true;
+    withBridge(<><PokemonStage {...props} /><PlayButton /></>);
+    await waitFor(() => expect(document.querySelector('[data-status="fallback"]')).toBeInTheDocument());
+    expect(() => fireEvent.click(screen.getByText('tocar'))).not.toThrow();
+    expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+  });
+
+  it('A7: palco fora da tela (retrato) rola até ele e toca; visível (landscape) não rola', async () => {
+    withBridge(<><PokemonStage {...props} /><PlayButton /></>);
+    await ready();
+    const rect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect');
+
+    rect.mockReturnValue({ top: -600, bottom: -300, left: 0, right: 300, width: 300, height: 300, x: 0, y: -600, toJSON() {} });
+    const base = calls.created.points;
+    fireEvent.click(screen.getByText('tocar'));
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(calls.created.points).toBe(base); // espera a rolagem terminar
+    await waitFor(() => expect(calls.created.points).toBe(base + 1));
+
+    rect.mockReturnValue({ top: 20, bottom: 320, left: 0, right: 300, width: 300, height: 300, x: 0, y: 20, toJSON() {} });
+    fireEvent.click(screen.getByText('tocar'));
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(calls.created.points).toBe(base + 2);
   });
 });
