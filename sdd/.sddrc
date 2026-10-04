@@ -1,0 +1,12 @@
+{
+  "project": "pokemon-data",
+  "version": "2.4.0",
+  "agents": ["claude", "gemini"],
+  "telemetry": {
+    "enabled": true,
+    "anonymous": true,
+    "endpoint": "local"
+  },
+  "lang": "pt-BR",
+  "naming_convention": "hash"
+}
