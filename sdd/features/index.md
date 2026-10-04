@@ -33,3 +33,4 @@ main
 | c4e9-10 | feat-c4e9-pokedex-redesign/feat-c4e9-10-acabamento.md | feat/c4e9-pokedex-redesign | 04–09 | done |
 | 7b3d | feat-7b3d-detalhe-golpe.md | feat/c4e9-pokedex-redesign | aba Golpes | done |
 | d92a | feat-d92a-animacao-golpe-3d.md | feat/animacao-golpe-3d | 7b3d, c4e9-09 | done |
+| e5c8 | feat-e5c8-pwa.md | feat/pwa | d92a | done |

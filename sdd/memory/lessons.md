@@ -13,3 +13,8 @@ Padrões de erro já corrigidos, consultados por Builder/Revisor antes de implem
 - Sprites de partículas grandes e girados: desligar mipmaps e limitar `gl_PointSize` (GPUs móveis têm teto).
 - Um anel que expande perto da câmera é cortado pelo canvas e parece um quadrado translúcido; limitar o raio ao quadro.
 - Blend aditivo some sobre fundo claro (tela verde da Pokédex): usar blend normal.
+- `Network.emulateNetworkConditions` do DevTools não atinge o fetch do service worker: para testar offline, desligar o servidor.
+- Service worker só controla a página depois de ativar: a primeira página precisa ser guardada por mensagem (`CACHE_PAGE`), senão o 1º offline cai na tela offline.
+- Não pré-cachear só o HTML de `/offline`: o CSS/JS dele também precisa entrar no cache (extrair `/_next/static/*` do HTML).
+- Imagens `no-cors` ficam opacas e inflam a cota do cache: re-buscar com `mode: 'cors'` quando o CDN permite.
+- Lint do React barra `setState` direto em efeito: ler ambiente do cliente com `useSyncExternalStore`.
