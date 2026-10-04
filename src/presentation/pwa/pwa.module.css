@@ -1,0 +1,11 @@
+.banner {
+  position: fixed; z-index: 50; left: 12px; right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px;
+  max-width: 520px; margin: 0 auto; padding: 12px 14px;
+  background: var(--dex-white); color: var(--dex-ink);
+  border: 3px solid var(--dex-ink); border-radius: var(--radius);
+  box-shadow: 0 6px 0 var(--dex-red-dark);
+}
+.text { margin: 0; flex: 1 1 220px; line-height: 1.35; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
