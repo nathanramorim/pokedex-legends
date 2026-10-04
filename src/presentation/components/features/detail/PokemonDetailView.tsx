@@ -3,6 +3,7 @@ import type { PokemonDetail } from '@/application';
 import { formatName, formatNumber } from '@/presentation/format';
 import { Screen, Tabs, TypeBadge, type TabItem } from '../../ui';
 import { PokemonStage } from '@/presentation/three/PokemonStage';
+import { MoveStageProvider } from '@/presentation/three/StageContext';
 import { AboutTab } from './AboutTab';
 import { AbilitiesTab } from './AbilitiesTab';
 import { ItemsTab } from './ItemsTab';
@@ -33,27 +34,29 @@ export function PokemonDetailView({ detail, itemIconBaseUrl }: Props) {
   ];
 
   return (
-    <div className={styles.view}>
-      <section className={styles.stage} aria-label={`Imagem de ${formatName(pokemon.name)}`}>
-        <Link href="/" className={styles.back}>← Voltar</Link>
-        <Screen className={styles.screen}>
-          <PokemonStage
-            imageUrl={pokemon.artworkUrl}
-            name={formatName(pokemon.name)}
-            accentToken={`--type-${pokemon.types[0] ?? 'normal'}`}
-          />
-        </Screen>
-        <header className={styles.title}>
-          <span className={styles.number}>{formatNumber(pokemon.id)}</span>
-          <h1>{formatName(pokemon.name)}</h1>
-          <span className={styles.types}>
-            {pokemon.types.map((t) => <TypeBadge key={t} type={t} />)}
-          </span>
-        </header>
-      </section>
-      <section className={styles.info}>
-        <Tabs items={tabs} ariaLabel={`Informações de ${formatName(pokemon.name)}`} />
-      </section>
-    </div>
+    <MoveStageProvider>
+      <div className={styles.view}>
+        <section className={styles.stage} aria-label={`Imagem de ${formatName(pokemon.name)}`}>
+          <Link href="/" className={styles.back}>← Voltar</Link>
+          <Screen className={styles.screen}>
+            <PokemonStage
+              imageUrl={pokemon.artworkUrl}
+              name={formatName(pokemon.name)}
+              accentToken={`--type-${pokemon.types[0] ?? 'normal'}`}
+            />
+          </Screen>
+          <header className={styles.title}>
+            <span className={styles.number}>{formatNumber(pokemon.id)}</span>
+            <h1>{formatName(pokemon.name)}</h1>
+            <span className={styles.types}>
+              {pokemon.types.map((t) => <TypeBadge key={t} type={t} />)}
+            </span>
+          </header>
+        </section>
+        <section className={styles.info}>
+          <Tabs items={tabs} ariaLabel={`Informações de ${formatName(pokemon.name)}`} />
+        </section>
+      </div>
+    </MoveStageProvider>
   );
 }

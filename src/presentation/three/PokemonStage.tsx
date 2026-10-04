@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { effectFor } from './move-effects';
+import { useMoveStage } from './StageContext';
 import type { Stage } from './stage-engine';
 import styles from './PokemonStage.module.css';
 
@@ -20,6 +22,7 @@ export function PokemonStage({ imageUrl, name, accentToken }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stageRef = useRef<Stage | null>(null);
   const [status, setStatus] = useState<Status>('loading');
+  const bridge = useMoveStage();
 
   useEffect(() => {
     const container = containerRef.current;
@@ -46,6 +49,14 @@ export function PokemonStage({ imageUrl, name, accentToken }: Props) {
         }
         stage = created;
         stageRef.current = created;
+        bridge.register({
+          element: container,
+          play: (type, category) => {
+            const effect = effectFor(type, category);
+            const color = getComputedStyle(document.documentElement).getPropertyValue(effect.colorToken).trim() || '#ffffff';
+            created.playMove({ ...effect, color });
+          },
+        });
         setStatus('ready');
       } catch {
         if (!cancelled) setStatus('fallback');
@@ -54,10 +65,11 @@ export function PokemonStage({ imageUrl, name, accentToken }: Props) {
 
     return () => {
       cancelled = true;
+      bridge.register(null);
       stageRef.current = null;
       stage?.dispose();
     };
-  }, [imageUrl, accentToken]);
+  }, [imageUrl, accentToken, bridge]);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'ArrowLeft') stageRef.current?.nudge(-1);

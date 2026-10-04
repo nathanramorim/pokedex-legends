@@ -2,7 +2,10 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { EvolutionDetail, EvolutionNode } from '@/domain';
 import { describeEvolution } from '@/presentation/format';
 import { charizardDetail } from '@/test/fixtures';
+import { StageBridgeContext } from '@/presentation/three/StageContext';
+import { MovesTab } from './MovesTab';
 import { PokemonDetailView } from './PokemonDetailView';
+import { vi } from 'vitest';
 
 const none: EvolutionDetail = {
   trigger: 'level-up', minLevel: null, item: null, heldItem: null, knownMove: null, location: null, minHappiness: null, timeOfDay: null,
@@ -145,6 +148,29 @@ describe('aba Golpes', () => {
     expect(ember).toHaveAttribute('aria-expanded', 'true');
     expect(document.getElementById(ember.getAttribute('aria-controls')!)).toBe(screen.getByRole('region', { name: 'Efeito de Ember' }));
     expect(ember.tagName).toBe('BUTTON');
+  });
+});
+
+describe('golpes e palco (A1)', () => {
+  it('selecionar toca o efeito do tipo e categoria; Repetir toca de novo; fechar não toca', () => {
+    const playMove = vi.fn();
+    render(
+      <StageBridgeContext.Provider value={{ register() {}, playMove }}>
+        <MovesTab moves={charizardDetail.moves} />
+      </StageBridgeContext.Provider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Ember/ }));
+    expect(playMove).toHaveBeenLastCalledWith('fire', 'special');
+    expect(playMove).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Repetir animação' }));
+    expect(playMove).toHaveBeenCalledTimes(2);
+
+    fireEvent.click(screen.getByRole('button', { name: /Ember/ })); // fecha
+    expect(playMove).toHaveBeenCalledTimes(2);
+
+    fireEvent.click(screen.getByRole('button', { name: /Dragon Dance/ }));
+    expect(playMove).toHaveBeenLastCalledWith('dragon', 'status');
   });
 });
 

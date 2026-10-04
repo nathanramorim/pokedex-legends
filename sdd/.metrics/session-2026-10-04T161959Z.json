@@ -1,0 +1,28 @@
+{
+  "$schema": "forge-sdd/metrics/1.0",
+  "feature": "sdd/features/feat-d92a-animacao-golpe-3d.md",
+  "phase": "d92a",
+  "agent_path": [
+    "orquestrador",
+    "builder"
+  ],
+  "tokens_input": 220000,
+  "tokens_output": 90000,
+  "turns": 45,
+  "duration_seconds": 9000,
+  "criterio_atendido": true,
+  "model": "claude-sonnet-5-5",
+  "rework_lines": 0,
+  "context7_calls": 0,
+  "git_calls": 0,
+  "files_touched": [
+    "src/presentation/three/stage-engine.ts",
+    "src/presentation/three/particle-sim.ts",
+    "src/presentation/three/particle-profiles.ts",
+    "src/presentation/three/effect-timeline.ts",
+    "src/presentation/three/StageContext.tsx",
+    "src/presentation/components/features/detail/MovesTab.tsx"
+  ],
+  "outcome": "approved",
+  "sdd_version": "2.4.0"
+}

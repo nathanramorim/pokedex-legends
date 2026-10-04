@@ -2,8 +2,9 @@
 
 import { useId, useState } from 'react';
 import type { Move } from '@/domain';
+import { useMoveStage } from '@/presentation/three/StageContext';
 import { describePriority, describeTarget, formatName } from '@/presentation/format';
-import { CATEGORY_LABELS, DamageClassIcon, StateMessage, TYPE_LABELS, TypeIcon } from '../../ui';
+import { Button, CATEGORY_LABELS, DamageClassIcon, StateMessage, TYPE_LABELS, TypeIcon } from '../../ui';
 import styles from './moves.module.css';
 
 const stat = (value: number | null) => (value === null ? '—' : String(value));
@@ -11,6 +12,7 @@ const stat = (value: number | null) => (value === null ? '—' : String(value));
 export function MovesTab({ moves }: { moves: Move[] }) {
   const baseId = useId();
   const [selected, setSelected] = useState<string | null>(null);
+  const stage = useMoveStage();
 
   if (moves.length === 0) {
     return <StateMessage kind="empty" title="Sem golpes">Não há golpes por nível disponíveis.</StateMessage>;
@@ -18,7 +20,7 @@ export function MovesTab({ moves }: { moves: Move[] }) {
 
   return (
     <>
-      <p className={styles.note}>Toque em um golpe para ver o que ele faz.</p>
+      <p className={styles.note}>Toque em um golpe para ver o que ele faz e como ele anima.</p>
       <ul className={styles.list} aria-label="Golpes">
         {moves.map((move) => {
           const open = selected === move.name;
@@ -30,7 +32,10 @@ export function MovesTab({ moves }: { moves: Move[] }) {
                 className={styles.trigger}
                 aria-expanded={open}
                 aria-controls={panelId}
-                onClick={() => setSelected(open ? null : move.name)}
+                onClick={() => {
+                  setSelected(open ? null : move.name);
+                  if (!open) stage.playMove(move.type, move.category);
+                }}
               >
                 <span
                   className={styles.icon}
@@ -66,6 +71,9 @@ export function MovesTab({ moves }: { moves: Move[] }) {
                     <div><dt>Prioridade</dt><dd>{describePriority(move.priority)}</dd></div>
                     {move.effectChance !== null ? <div><dt>Chance do efeito</dt><dd>{move.effectChance}%</dd></div> : null}
                   </dl>
+                  <Button variant="ghost" className={styles.replay} onClick={() => stage.playMove(move.type, move.category)}>
+                    Repetir animação
+                  </Button>
                 </div>
               ) : null}
             </li>

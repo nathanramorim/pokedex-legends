@@ -4,6 +4,9 @@ Este arquivo registra o histórico de entregas de produto deste projeto.
 
 ## Entregas
 
+### Golpes animados
+Agora, ao tocar em um golpe, o Pokémon executa o ataque no palco 3D com movimento realista: golpes físicos são uma investida com impacto e tremor, golpes especiais carregam e disparam um projétil, e golpes de status criam uma aura. Cada tipo tem seu próprio efeito (fogo sobe, água cai, pedra quica, raio estala e assim por diante). Em telas em pé, a tela rola sozinha até o Pokémon, e há um botão para repetir a animação.
+
 ### Detalhe do golpe
 Agora, na aba Golpes, é possível tocar em um golpe para ver o que ele faz: a descrição do efeito, em quem acerta, a prioridade e a chance do efeito extra, quando houver.
 
