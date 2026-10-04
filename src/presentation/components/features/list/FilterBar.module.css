@@ -1,0 +1,26 @@
+.bar { display: grid; gap: 10px; }
+.search input {
+  width: 100%; min-height: 44px; padding: 0 14px; font: inherit; border-radius: var(--radius);
+  border: 3px solid var(--dex-ink); background: var(--dex-white);
+}
+.group { display: flex; flex-wrap: wrap; gap: 6px; }
+.typeButton {
+  width: 44px; height: 44px; display: grid; place-items: center;
+  border: 3px solid var(--dex-ink); border-radius: 50%; cursor: pointer; opacity: 0.6;
+}
+.typeButton.pressed { opacity: 1; box-shadow: 0 0 0 3px var(--dex-yellow); transform: scale(1.08); }
+.chip {
+  min-height: 44px; padding: 0 12px; font: inherit; font-size: 0.85rem; cursor: pointer;
+  border: 3px solid var(--dex-ink); border-radius: 999px; background: var(--dex-panel); color: var(--dex-ink);
+}
+.chipOn { background: var(--dex-yellow); }
+.typeButton:focus-visible, .chip:focus-visible, .search input:focus-visible { outline: 3px solid var(--dex-yellow); outline-offset: 2px; }
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--dex-white); font-weight: 700; }
+.footer button { color: var(--dex-white); border-color: var(--dex-white); }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Landscape: filtros ocupam uma coluna lateral */
+@media (orientation: landscape) and (max-height: 540px) {
+  .bar { gap: 6px; }
+  .typeButton { width: 40px; height: 40px; }
+}

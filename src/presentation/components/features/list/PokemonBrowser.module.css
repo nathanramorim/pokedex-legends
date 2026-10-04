@@ -1,0 +1,2 @@
+.browser { display: grid; gap: 12px; min-width: 0; }
+.browser :global(div[role='status']) { background: var(--dex-white); border-radius: var(--radius); }

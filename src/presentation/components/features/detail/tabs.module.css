@@ -1,0 +1,24 @@
+.stack { display: grid; gap: 10px; }
+.stack p { margin: 0; line-height: 1.45; }
+.genus { font-weight: 800; color: var(--dex-red-dark); }
+.facts { display: flex; gap: 24px; margin: 0; }
+.facts div { display: grid; }
+.facts dt { font-size: 0.75rem; text-transform: uppercase; opacity: 0.6; }
+.facts dd { margin: 0; font-weight: 800; }
+.heading { margin: 6px 0 0; font-size: 1rem; }
+.stats { display: grid; gap: 6px; }
+.list, .grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.card { display: flex; flex-direction: column; gap: 4px; padding: 10px; border: 2px solid var(--dex-ink); border-radius: var(--radius); background: var(--dex-panel); }
+.grid .card { flex-direction: row; align-items: center; gap: 8px; font-weight: 700; }
+.cardHeader { display: flex; align-items: center; gap: 8px; }
+.tag { padding: 1px 8px; font-size: 0.7rem; font-weight: 800; border-radius: 999px; background: var(--dex-yellow); border: 1px solid var(--dex-ink); }
+.muted { margin: 0; opacity: 0.8; font-size: 0.9rem; }
+.mega { align-items: center; text-align: center; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.section { display: grid; gap: 6px; }
+.section h3 { margin: 0; font-size: 0.95rem; }
+.empty { margin: 0; opacity: 0.7; font-size: 0.9rem; }
+.ball { display: flex; align-items: center; gap: 12px; }
+.ball strong { font-size: 1.1rem; }
+.rate { display: grid; gap: 4px; }

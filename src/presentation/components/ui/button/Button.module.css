@@ -1,0 +1,13 @@
+.button {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: var(--radius);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  border: 2px solid var(--dex-ink);
+}
+.primary { background: var(--dex-lens-blue); color: var(--dex-ink); }
+.ghost { background: transparent; color: var(--dex-ink); }
+.button:focus-visible { outline: 3px solid var(--dex-yellow); outline-offset: 2px; }
+.button:disabled { opacity: 0.5; cursor: not-allowed; }

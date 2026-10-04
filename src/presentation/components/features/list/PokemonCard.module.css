@@ -1,0 +1,11 @@
+.card {
+  display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; gap: 2px;
+  height: 100%; padding: 8px 6px; text-decoration: none; color: var(--dex-ink);
+  background: var(--dex-white); border: 3px solid var(--dex-ink); border-radius: var(--radius);
+}
+.card:hover { background: #fffbe0; }
+.card:focus-visible { outline: 3px solid var(--dex-yellow); outline-offset: 2px; }
+.number { justify-self: start; font-size: 0.75rem; font-weight: 700; opacity: 0.6; font-variant-numeric: tabular-nums; }
+.image { width: 96px; height: 96px; object-fit: contain; }
+.name { font-weight: 800; font-size: 0.9rem; text-align: center; }
+.types { display: flex; gap: 4px; min-height: 26px; }

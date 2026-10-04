@@ -1,0 +1,11 @@
+.stage { position: relative; width: min(70vw, 300px); aspect-ratio: 1; margin: 0 auto 18px; }
+.fallback { width: 100%; height: 100%; object-fit: contain; }
+.canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; opacity: 0; pointer-events: none; cursor: grab; }
+.visible { opacity: 1; pointer-events: auto; }
+.canvas:active { cursor: grabbing; }
+.canvas:focus-visible { outline: 3px solid var(--dex-yellow); outline-offset: 2px; border-radius: var(--radius); }
+.hint { position: absolute; left: 0; right: 0; bottom: -18px; text-align: center; font-size: 0.65rem; font-weight: 700; opacity: 0.65; white-space: nowrap; pointer-events: none; }
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .stage { width: min(48vh, 240px); }
+}
